@@ -51,3 +51,14 @@ This repository implements a **Split Federated Learning (SplitFL)** framework fo
 | Pattern Invariant  | Fixed     | Random  | 10%    |
 | Random Across All  | Random    | Random  | Random |
 
+## 🧪 Model Configuration
+Your model (SplitCNN) is composed of 3 blocks:    
+
+block1 — typically a few early convolution layers.  
+block2 — mid-level conv layers.  
+block3 — flatten and linear layers before the final classifier.  
+
+The model is split at a cut_layer so:  
+The client runs everything up to that layer (forward_until()).  
+The server runs everything from that layer onwards (forward_from()).  
+

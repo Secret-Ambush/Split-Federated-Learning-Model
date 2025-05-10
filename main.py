@@ -11,14 +11,14 @@ from server import server_aggregate_split
 from backdoor import inject_backdoor_dynamic, log_results_to_csv
 
 DATASET = "cifar10"
-NUM_CLIENTS = 20
+NUM_CLIENTS = 5
 ALPHA = 0.5
 NUM_ROUNDS = 30
 LOCAL_EPOCHS = 5
 INJECTION_RATE = 0.5
 PATTERN_SIZE = 0.1
 TARGET_LABEL = 1
-ATTACKER_PERCENTAGES = [0, 10, 20, 30, 40, 50]
+ATTACKER_PERCENTAGES = [0, 20, 50]
 CUT_LAYERS = [1, 2, 3]
 
 configurations = [
@@ -96,10 +96,14 @@ results_clean = {c["label"]: {l: [] for l in CUT_LAYERS} for c in configurations
 results_for_csv = {c["label"]: {l: [] for l in CUT_LAYERS} for c in configurations}
 
 for config in configurations:
+    print(f"Running configuration: {config['label']}")
     for cut_layer in CUT_LAYERS:
+        print(f"Running cut layer: {cut_layer}")
         for perc in ATTACKER_PERCENTAGES:
-            num_attackers = max(1, int(NUM_CLIENTS * (perc / 100)))
+            num_attackers = max(0, int(NUM_CLIENTS * (perc / 100)))
+            print(f"  {perc}% attackers -> {num_attackers} attackers")
             asr, bd_acc, clean_acc = run_experiment(num_attackers, config, cut_layer)
+            print(f"   Attack Success Rate: {asr:.2f}%  |  Backdoor Accuracy: {bd_acc:.2f}%  |  Clean Accuracy: {clean_acc:.2f}%")
             results_asr[config["label"]][cut_layer].append(asr)
             results_bd[config["label"]][cut_layer].append(bd_acc)
             results_clean[config["label"]][cut_layer].append(clean_acc)
