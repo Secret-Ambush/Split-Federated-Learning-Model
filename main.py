@@ -8,7 +8,7 @@ from models import SplitCNN
 from utils import get_dataset, split_dataset_dirichlet
 from client import splitfl_train_epoch
 from server import server_aggregate_split
-from backdoor import inject_backdoor_dynamic
+from backdoor import inject_backdoor_dynamic, log_results_to_csv
 
 DATASET = "cifar10"
 NUM_CLIENTS = 20
@@ -93,6 +93,7 @@ def run_experiment(num_attackers, config, cut_layer):
 results_asr = {c["label"]: {l: [] for l in CUT_LAYERS} for c in configurations}
 results_bd = {c["label"]: {l: [] for l in CUT_LAYERS} for c in configurations}
 results_clean = {c["label"]: {l: [] for l in CUT_LAYERS} for c in configurations}
+results_for_csv = {c["label"]: {l: [] for l in CUT_LAYERS} for c in configurations}
 
 for config in configurations:
     for cut_layer in CUT_LAYERS:
@@ -102,6 +103,10 @@ for config in configurations:
             results_asr[config["label"]][cut_layer].append(asr)
             results_bd[config["label"]][cut_layer].append(bd_acc)
             results_clean[config["label"]][cut_layer].append(clean_acc)
+            results_for_csv[config["label"]][cut_layer].append([perc, asr, bd_acc, clean_acc])
+
+# Save results to CSV
+log_results_to_csv(results_for_csv, "splitfl_backdoor_results.csv")
 
 # Plotting
 for metric, results, ylabel in [("asr", results_asr, "Attack Success Rate (%)"),

@@ -3,6 +3,7 @@ import random
 import numpy as np
 from torchvision.utils import make_grid
 from torchvision.transforms import ToPILImage
+import csv
 
 def inject_backdoor_dynamic(data, targets, injection_rate=0.5, pattern_type="plus",
                             pattern_size=0.1, location="fixed", target_label=1):
@@ -93,3 +94,15 @@ def save_backdoor_images(data, n=8, filename="backdoor_images.jpg"):
     to_pil = ToPILImage()
     image = to_pil(grid)
     image.save(filename, format="JPEG")
+
+
+def log_results_to_csv(results, filename):
+    """Save result dictionary to a CSV file."""
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Configuration", "Cut Layer", "Attacker %", "ASR", "Backdoor Acc", "Clean Acc"])
+        for config_label, cuts in results.items():
+            for cut_layer, entries in cuts.items():
+                for entry in entries:
+                    attacker_pct, asr, bd_acc, clean_acc = entry
+                    writer.writerow([config_label, cut_layer, attacker_pct, asr, bd_acc, clean_acc])
