@@ -16,9 +16,12 @@ class SplitCNN(nn.Module):
         )
         self.block3 = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(32 * 8 * 8, 128),
+            nn.Linear(32 * 8 * 8, 512),
+            nn.ReLU(),
+            nn.Linear(512, 128),
             nn.ReLU()
         )
+
         self.classifier = nn.Linear(128, 10)
 
     def forward_until(self, x, cut_layer):
