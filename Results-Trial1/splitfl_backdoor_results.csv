@@ -1,0 +1,46 @@
+Configuration,Cut Layer,Attacker %,ASR,Backdoor Acc,Clean Acc
+Static case,1,0,0.0,9.96,9.83
+Static case,1,20,0.01,9.68,9.46
+Static case,1,50,0.0,10.02,9.99
+Static case,2,0,18.2,16.5,16.9
+Static case,2,20,94.77,10.95,12.94
+Static case,2,50,0.01,9.16,8.52
+Static case,3,0,11.88,48.52,48.3
+Static case,3,20,70.73,23.41,42.96
+Static case,3,50,88.76,15.63,48.54
+Location Invariant,1,0,88.36,8.74,8.81
+Location Invariant,1,20,0.0,10.23,10.28
+Location Invariant,1,50,63.79,10.73,10.8
+Location Invariant,2,0,0.14,10.53,10.44
+Location Invariant,2,20,24.16,13.11,13.05
+Location Invariant,2,50,0.01,14.47,14.65
+Location Invariant,3,0,13.47,43.56,43.78
+Location Invariant,3,20,23.03,42.88,43.67
+Location Invariant,3,50,23.82,38.29,39.8
+Size Invariant,1,0,0.0,8.36,8.25
+Size Invariant,1,20,0.48,10.19,10.21
+Size Invariant,1,50,0.62,10.39,10.03
+Size Invariant,2,0,6.01,11.23,11.42
+Size Invariant,2,20,0.0,11.25,10.67
+Size Invariant,2,50,0.49,14.33,15.09
+Size Invariant,3,0,15.79,44.9,45.05
+Size Invariant,3,20,52.85,32.29,46.66
+Size Invariant,3,50,89.27,15.01,45.09
+Pattern Invariant,1,0,0.0,9.39,9.47
+Pattern Invariant,1,20,0.17,10.01,10.04
+Pattern Invariant,1,50,0.0,11.38,11.61
+Pattern Invariant,2,0,0.03,10.99,11.32
+Pattern Invariant,2,20,0.0,11.51,12.27
+Pattern Invariant,2,50,87.33,10.89,11.47
+Pattern Invariant,3,0,18.82,42.73,42.43
+Pattern Invariant,3,20,69.05,22.95,44.25
+Pattern Invariant,3,50,90.49,14.28,43.52
+Random accross all,1,0,0.0,10.06,10.06
+Random accross all,1,20,0.0,9.99,10.04
+Random accross all,1,50,3.84,9.58,9.65
+Random accross all,2,0,0.36,13.71,13.73
+Random accross all,2,20,2.68,12.71,13.14
+Random accross all,2,50,25.05,17.91,18.32
+Random accross all,3,0,15.28,42.84,45.95
+Random accross all,3,20,18.35,42.65,46.11
+Random accross all,3,50,32.21,38.05,43.13
