@@ -126,50 +126,47 @@ class SplitAlexNet(nn.Module):
     def __init__(self, num_classes):
         super(SplitAlexNet, self).__init__()
         base_model = models.alexnet(weights=None)
-        base_model.classifier[6] = nn.Linear(base_model.classifier[6].in_features, num_classes)
-        self.block1 = nn.Sequential(*base_model.features[:3])
-        self.block2 = nn.Sequential(*base_model.features[3:6])
-        self.block3 = nn.Sequential(*base_model.features[6:])
+
+        # 🚫 Disable final maxpool that collapses small input
+        base_model.features[12] = nn.Identity()
+
+        self.block1 = nn.Sequential(*base_model.features[:3])   # Conv1 + ReLU + MaxPool
+        self.block2 = nn.Sequential(*base_model.features[3:6])  # Conv2 + ReLU + MaxPool
+        self.block3 = nn.Sequential(*base_model.features[6:])   # Remaining convs (no pool)
+
+        self.adaptive_pool = nn.AdaptiveAvgPool2d((6, 6))       # 🌟 Critical to fix FC input size
+        base_model.classifier[6] = nn.Linear(4096, num_classes) # Adjust FC layer
         self.classifier = base_model.classifier
 
     def forward_until(self, x, cut_layer):
-        if cut_layer == 0:
-            return self.block1(x)
-        elif cut_layer == 1:
+        if cut_layer == 0 or cut_layer == 1:
             return self.block1(x)
         elif cut_layer == 2:
-            x = self.block1(x)
-            return self.block2(x)
+            return self.block2(self.block1(x))
         elif cut_layer == 3:
-            x = self.block1(x)
-            x = self.block2(x)
-            return self.block3(x)
+            return self.block3(self.block2(self.block1(x)))
         elif cut_layer == -1:
             return x
 
     def forward_from(self, x, cut_layer):
         if cut_layer == -1:
-            x = self.block1(x)
-            x = self.block2(x)
-            x = self.block3(x)
-        elif cut_layer == 0:
-            x = self.block2(x)
-            x = self.block3(x)
-        elif cut_layer == 1:
-            x = self.block2(x)
-            x = self.block3(x)
+            x = self.block3(self.block2(self.block1(x)))
+        elif cut_layer in [0, 1]:
+            x = self.block3(self.block2(x))
         elif cut_layer == 2:
             x = self.block3(x)
+        elif cut_layer == 3:
+            pass  # already processed
+
+        x = self.adaptive_pool(x)
         x = torch.flatten(x, 1)
         return self.classifier(x)
 
     def forward(self, x):
-        x = self.block1(x)
-        x = self.block2(x)
-        x = self.block3(x)
+        x = self.block3(self.block2(self.block1(x)))
+        x = self.adaptive_pool(x)
         x = torch.flatten(x, 1)
         return self.classifier(x)
-
 
 # ------------------------------
 # DenseNet121

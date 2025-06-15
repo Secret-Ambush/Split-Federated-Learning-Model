@@ -37,6 +37,7 @@ class TrafficSignDataset(torch.utils.data.Dataset):
 # ------------------------
 def get_custom_dataset(csv_path, split_ratio=0.8):
     df = pd.read_csv(csv_path)
+    df = df[~df['image_path'].str.endswith('.DS_Store')]  # remove .DS_Store rows
     transform = transforms.Compose([
         transforms.Resize((32, 32)),
         transforms.ToTensor()

@@ -1,0 +1,6 @@
+Model,Cut Layer,Clean Accuracy (%)
+AlexNet,0,13.61
+AlexNet,1,7.3
+AlexNet,2,16.81
+AlexNet,3,13.61
+AlexNet,-1,9.78

@@ -15,12 +15,13 @@ ALPHA = 0.5
 NUM_ROUNDS = 30
 LOCAL_EPOCHS = 5
 MODEL_LIST = [
-    ("SplitCNN", SplitCNN),
-    ("ResNet18", SplitResNet18),
     ("AlexNet", SplitAlexNet),
     ("DenseNet121", SplitDenseNet121),
-    ("EfficientNetB0", SplitEfficientNetB0)
+    ("EfficientNetB0", SplitEfficientNetB0),
+    ("SplitCNN", SplitCNN),
+    ("ResNet18", SplitResNet18)
 ]
+LOG_PATH = "accuracy_log.txt"
 
 # --------------------------
 # Load Dataset and Partition
@@ -38,6 +39,9 @@ print("✅ Client data split complete.")
 # Training and Evaluation
 # --------------------------
 def run_clean_experiment(ModelClass, cut_layer, num_classes):
+    with open(LOG_PATH, "a") as f:
+        f.write(f"Model: {model_name}\n")
+        
     print(f"\n▶️ Running clean experiment | Cut Layer = {cut_layer}")
     client_model = ModelClass(num_classes=num_classes)
     server_model = ModelClass(num_classes=num_classes)
@@ -85,32 +89,57 @@ def run_clean_experiment(ModelClass, cut_layer, num_classes):
 
     accuracy = 100 * correct_clean / total
     print(f"  ✅ Accuracy @ Cut Layer {cut_layer}: {accuracy:.2f}%")
+
+    # Realtime log
+    log_accuracy_to_file(model_name, cut_layer, accuracy)
+
     return accuracy
+
+
+def log_accuracy_to_file(model_name, cut_layer, accuracy):
+    with open(LOG_PATH, "a") as f:
+        f.write(f"{model_name}, Cut Layer {cut_layer}, Accuracy: {accuracy:.2f}%\n")
 
 # --------------------------
 # Run for All Models & Layers
 # --------------------------
-results = []
+results_all = []
 
 print("\n=======================")
 print("🧼 Clean Accuracy Evaluation")
 print("=======================")
 
+with open(LOG_PATH, "w") as f:
+    f.write("Clean Accuracy Evaluation Log\n")
+    f.write("================================\n")
+    
 for model_name, ModelClass in MODEL_LIST:
     print(f"\n🚀 Model: {model_name}")
     cut_layers = get_cut_layers_for_model(ModelClass(num_classes=num_classes))
+
+    model_results = []
+
     for cut_layer in cut_layers:
         acc = run_clean_experiment(ModelClass, cut_layer, num_classes)
-        results.append({
+        model_results.append({
             "Model": model_name,
             "Cut Layer": cut_layer,
             "Clean Accuracy (%)": round(acc, 2)
         })
 
+    # Save per-model CSV
+    model_df = pd.DataFrame(model_results)
+    model_csv_path = f"clean_accuracy_{model_name}.csv"
+    model_df.to_csv(model_csv_path, index=False)
+    print(f"📄 Per-model results saved to {model_csv_path}")
+
+    # Accumulate for final CSV
+    results_all.extend(model_results)
+
 # --------------------------
-# Save Results to CSV
+# Save Final Combined Results
 # --------------------------
-output_path = "clean_accuracy_no_attack.csv"
-df = pd.DataFrame(results)
-df.to_csv(output_path, index=False)
-print(f"\n📄 Results saved to {output_path}")
+final_df = pd.DataFrame(results_all)
+final_output_path = "clean_accuracy_no_attack.csv"
+final_df.to_csv(final_output_path, index=False)
+print(f"\n📊 All model results saved to {final_output_path}")

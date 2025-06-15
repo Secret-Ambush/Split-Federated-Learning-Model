@@ -1,0 +1,9 @@
+Clean Accuracy Evaluation Log
+================================
+Model: AlexNet
+AlexNet, Cut Layer 0, Accuracy: 13.61%
+AlexNet, Cut Layer 1, Accuracy: 7.30%
+AlexNet, Cut Layer 2, Accuracy: 16.81%
+AlexNet, Cut Layer 3, Accuracy: 13.61%
+AlexNet, Cut Layer -1, Accuracy: 9.78%
+Model: DenseNet121
