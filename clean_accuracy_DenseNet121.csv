@@ -1,0 +1,6 @@
+Model,Cut Layer,Clean Accuracy (%)
+DenseNet121,0,4.55
+DenseNet121,1,11.05
+DenseNet121,2,20.19
+DenseNet121,3,82.79
+DenseNet121,-1,7.8

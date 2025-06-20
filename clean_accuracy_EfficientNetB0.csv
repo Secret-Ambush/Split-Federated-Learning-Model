@@ -1,0 +1,6 @@
+Model,Cut Layer,Clean Accuracy (%)
+EfficientNetB0,0,3.69
+EfficientNetB0,1,2.89
+EfficientNetB0,2,12.58
+EfficientNetB0,3,82.41
+EfficientNetB0,-1,7.8

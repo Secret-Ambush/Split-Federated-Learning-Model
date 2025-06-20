@@ -1,0 +1,6 @@
+Model,Cut Layer,Clean Accuracy (%)
+ResNet18,0,8.13
+ResNet18,1,5.92
+ResNet18,2,29.42
+ResNet18,3,83.82
+ResNet18,-1,7.99

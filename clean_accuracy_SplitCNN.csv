@@ -1,0 +1,6 @@
+Model,Cut Layer,Clean Accuracy (%)
+SplitCNN,0,9.05
+SplitCNN,1,8.9
+SplitCNN,2,16.49
+SplitCNN,3,64.01
+SplitCNN,-1,7.25
