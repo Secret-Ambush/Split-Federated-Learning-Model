@@ -4,7 +4,7 @@ import torch.nn as nn
 import torchvision.models as models
 
 # ------------------------------
-# Base CNN used previously
+# Base CNN used
 # ------------------------------
 class SplitCNN(nn.Module):
     def __init__(self, num_classes, in_channels=3):
