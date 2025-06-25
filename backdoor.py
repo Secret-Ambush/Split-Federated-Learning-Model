@@ -6,19 +6,21 @@ from torchvision.transforms import ToPILImage
 import csv
 
 def inject_backdoor_dynamic(data, targets, injection_rate=0.5, pattern_type="plus",
-                            pattern_size=0.1, location="fixed", target_label=1):
+                            pattern_size=0.1, location="fixed", target_label=1,
+                            color=(0.5, 0.0, 0.5)):  # Default: purple
     """
     Injects a dynamic backdoor trigger into a fraction of images in the batch.
-    
+
     Parameters:
       data (torch.Tensor): Batch of images, shape (B, C, H, W).
       targets (torch.Tensor): Corresponding labels.
-      injection_rate (float): Fraction of images to modify (e.g. 0.5 for 50%).
-      pattern_type (str): Type of pattern to insert ('plus', 'minus', 'block', or 'random').
-      pattern_size (float): Fraction of image dimension to determine pattern size.
-      location (str): 'fixed' (bottom-right) or 'random' placement.
+      injection_rate (float): Fraction of images to modify.
+      pattern_type (str): 'plus', 'minus', 'block', or 'random'.
+      pattern_size (float): Fraction of image dimension to determine patch size.
+      location (str): 'fixed' or 'random' placement.
       target_label (int): The label to assign to backdoor images.
-      
+      color (tuple): RGB tuple with values between 0–1 for patch colour (e.g. purple = (0.5, 0, 0.5)).
+
     Returns:
       (data, targets): Modified tensors.
     """
@@ -26,58 +28,59 @@ def inject_backdoor_dynamic(data, targets, injection_rate=0.5, pattern_type="plu
     num_to_inject = int(B * injection_rate)
     if num_to_inject == 0:
         return data, targets
-    
-    # Randomly choose a subset of images in the batch.
+
     indices = torch.randperm(B)[:num_to_inject]
 
     for i in indices:
-        # Determine pattern size in pixels.
-        if pattern_size == -1:
-            options = [0.1, 0.2, 0.3, 0.4]
-            ps = random.choice(options)
-        else:
-            ps = pattern_size
-            
-        s = int(H * ps)
-        if s < 1:
-            s = 1
-            
-        # Determine placement for the pattern.
-        if location == "fixed":
-            top = H - s
-            left = W - s
-        elif location == "random":
+        ps = random.choice([0.1, 0.2, 0.3, 0.4]) if pattern_size == -1 else pattern_size
+        s = max(int(H * ps), 1)
+
+        if location == "random":
             top = torch.randint(0, H - s + 1, (1,)).item()
             left = torch.randint(0, W - s + 1, (1,)).item()
-        else:
+        else:  # fixed
             top = H - s
             left = W - s
-        
-        # Determine which pattern to draw.
+
         actual_pattern = pattern_type
         if pattern_type == "random":
-            choices = ["plus", "minus", "block"]
-            actual_pattern = random.choice(choices)
-        
+            actual_pattern = random.choice(["plus", "minus", "block"])
+
+        r, g, b = color
+
         if actual_pattern == "plus":
             center_row = top + s // 2
             center_col = left + s // 2
-            data[i, :, center_row, left:left+s] = 1.0  # horizontal line
-            data[i, :, top:top+s, center_col] = 1.0      # vertical line
+            data[i, 0, center_row, left:left + s] = r  # Red channel horizontal
+            data[i, 1, center_row, left:left + s] = g
+            data[i, 2, center_row, left:left + s] = b
+            data[i, 0, top:top + s, center_col] = r  # Red channel vertical
+            data[i, 1, top:top + s, center_col] = g
+            data[i, 2, top:top + s, center_col] = b
+
         elif actual_pattern == "minus":
             center_row = top + s // 2
-            data[i, :, center_row, left:left+s] = 1.0
+            data[i, 0, center_row, left:left + s] = r
+            data[i, 1, center_row, left:left + s] = g
+            data[i, 2, center_row, left:left + s] = b
+
         elif actual_pattern == "block":
-            data[i, :, top:top+s, left:left+s] = 1.0
-        else:
-            # Default to plus.
+            data[i, 0, top:top + s, left:left + s] = r
+            data[i, 1, top:top + s, left:left + s] = g
+            data[i, 2, top:top + s, left:left + s] = b
+
+        else:  # default to plus
             center_row = top + s // 2
             center_col = left + s // 2
-            data[i, :, center_row, left:left+s] = 1.0
-            data[i, :, top:top+s, center_col] = 1.0
-        
-        # Change label to target_label for injected images.
+            data[i, 0, center_row, left:left + s] = r
+            data[i, 1, center_row, left:left + s] = g
+            data[i, 2, center_row, left:left + s] = b
+            data[i, 0, top:top + s, center_col] = r
+            data[i, 1, top:top + s, center_col] = g
+            data[i, 2, top:top + s, center_col] = b
+
         targets[i] = target_label
+
     return data, targets
 
 def save_backdoor_images(data, n=8, filename="backdoor_images.jpg"):
@@ -94,7 +97,6 @@ def save_backdoor_images(data, n=8, filename="backdoor_images.jpg"):
     to_pil = ToPILImage()
     image = to_pil(grid)
     image.save(filename, format="JPEG")
-
 
 def log_results_to_csv(results, filename):
     """Save result dictionary to a CSV file."""
