@@ -12,10 +12,9 @@ trainset, _, _ = get_custom_dataset(csv_path)
 # Define 5 backdoor configurations
 configurations = [
     {"label": "Static case", "location": "fixed", "pattern_type": "plus"},
-    {"label": "Location Invariant", "location": "random", "pattern_type": "plus"},
     {"label": "Size Invariant", "location": "fixed", "pattern_type": "plus", "pattern_size": "random"},
     {"label": "Pattern Invariant", "location": "fixed", "pattern_type": "random"},
-    {"label": "Random across all", "location": "random", "pattern_type": "random", "pattern_size": "random"}
+    {"label": "Random across all", "location": "fixed", "pattern_type": "random", "pattern_size": "random"}
 ]
 
 # Randomly sample 5 images from dataset
@@ -51,15 +50,11 @@ for row, config in enumerate(configurations):
         ax.imshow(img)
         ax.axis('off')
 
-        # Column titles
-        if row == 0:
-            ax.set_title(f"Sample #{indices[col]}\nClass {labels[col].item()}", fontsize=9)
-
-        # Row labels
         if col == 0:
-            ax.set_ylabel(config["label"], fontsize=10)
+            ax.set_ylabel(config["label"], fontsize=10, rotation=90, labelpad=10)
 
-plt.suptitle("Backdoor Pattern Variants (5 Configs x 5 Samples)", fontsize=14)
+
+plt.suptitle("Backdoor Pattern Variants", fontsize=14)
 plt.tight_layout()
-plt.subplots_adjust(top=0.9)
+plt.subplots_adjust(top=0.9, wspace=0.01, hspace=0.05)
 plt.show()
