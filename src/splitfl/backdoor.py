@@ -1,9 +1,15 @@
-import torch
-import random
-import numpy as np
-from torchvision.utils import make_grid
-from torchvision.transforms import ToPILImage
 import csv
+import random
+from pathlib import Path
+
+import numpy as np
+import torch
+from torchvision.transforms import ToPILImage
+from torchvision.utils import make_grid
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_FIGURE_DIR = PROJECT_ROOT / "artifacts" / "figures"
+DEFAULT_RESULTS_DIR = PROJECT_ROOT / "results" / "attacks"
 
 def inject_backdoor_dynamic(data, targets, injection_rate=0.5, pattern_type="plus",
                             pattern_size=0.1, location="fixed", target_label=1,
@@ -92,15 +98,26 @@ def save_backdoor_images(data, n=8, filename="backdoor_images.jpg"):
       n (int): Number of images to include in the grid.
       filename (str): Filename to save the image grid.
     """
+    target_path = Path(filename)
+    if not target_path.is_absolute():
+        target_path = DEFAULT_FIGURE_DIR / target_path
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
     data_subset = data[:n]
     grid = make_grid(data_subset, nrow=n, padding=2)
     to_pil = ToPILImage()
     image = to_pil(grid)
-    image.save(filename, format="JPEG")
+    image.save(target_path, format="JPEG")
+    return target_path
 
 def log_results_to_csv(results, filename):
     """Save result dictionary to a CSV file."""
-    with open(filename, mode='w', newline='') as file:
+    target_path = Path(filename)
+    if not target_path.is_absolute():
+        target_path = DEFAULT_RESULTS_DIR / target_path
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with target_path.open(mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Configuration", "Cut Layer", "Attacker %", "ASR", "Backdoor Acc", "Clean Acc"])
         for config_label, cuts in results.items():
@@ -108,3 +125,4 @@ def log_results_to_csv(results, filename):
                 for entry in entries:
                     attacker_pct, asr, bd_acc, clean_acc = entry
                     writer.writerow([config_label, cut_layer, attacker_pct, asr, bd_acc, clean_acc])
+    return target_path

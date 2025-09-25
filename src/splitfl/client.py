@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from backdoor import inject_backdoor_dynamic
+from .backdoor import inject_backdoor_dynamic, save_backdoor_images
 
 def splitfl_train_epoch(client_model, server_model, dataloader, cut_layer, lr,
                         malicious=False, injection_rate=0.5, pattern_size=0.1,
@@ -22,13 +22,15 @@ def splitfl_train_epoch(client_model, server_model, dataloader, cut_layer, lr,
                                                    target_label=target_label)
             # 🔍 Save sample poisoned images once per run for debug
             if not hasattr(splitfl_train_epoch, "_image_logged"):
-                from backdoor import save_backdoor_images
-                poisoned_batch, _ = inject_backdoor_dynamic(data.clone(), target.clone(),
-                                                            injection_rate=1.0,
-                                                            pattern_type=pattern_type,
-                                                            pattern_size=pattern_size,
-                                                            location=location,
-                                                            target_label=target_label)
+                poisoned_batch, _ = inject_backdoor_dynamic(
+                    data.clone(),
+                    target.clone(),
+                    injection_rate=1.0,
+                    pattern_type=pattern_type,
+                    pattern_size=pattern_size,
+                    location=location,
+                    target_label=target_label,
+                )
                 save_backdoor_images(poisoned_batch, filename=f"backdoor_sample_cut{cut_layer}.jpg")
                 splitfl_train_epoch._image_logged = True
 
