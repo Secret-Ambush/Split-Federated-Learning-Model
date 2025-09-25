@@ -6,7 +6,7 @@ This project explores Split Federated Learning (SplitFL) under clean and adversa
 - Modular SplitFL package in `src/splitfl` with reusable models, training loops, utilities, and backdoor helpers.
 - Reproducible experiment entry points in `scripts/` for clean runs, static attacker studies, and dynamic attacker sweeps.
 - Result artefacts, logs, and intermediate plots written to structured folders for quick comparison across trials.
-- Supports CIFAR-10 (downloaded automatically) and a custom traffic-sign dataset referenced by `data/processed/final_dataset_from_folders.csv`.
+- Supports CIFAR-10 (downloaded automatically) and a [custom traffic-sign dataset](https://www.kaggle.com/datasets/rgoswami66/traffic-sign-dataset).
 
 ## 🚀 Getting Started
 1. **Environment**: Python 3.9+ with `torch`, `torchvision`, `pandas`, and `matplotlib` installed.
@@ -50,10 +50,9 @@ This project explores Split Federated Learning (SplitFL) under clean and adversa
 | Configuration      | Placement | Pattern | Size   |
 | ------------------ | --------- | ------- | ------ |
 | Static Case        | Fixed     | Plus    | 10%    |
-| Location Invariant | Random    | Plus    | 10%    |
 | Size Invariant     | Fixed     | Plus    | Random |
 | Pattern Invariant  | Fixed     | Random  | 10%    |
-| Random Across All  | Random    | Random  | Random |
+| Random Across All  | Fixed    | Random  | Random |
 
 ## 🔍 Tips
 - The scripts cache poisoned image samples and CSV summaries automatically; clean up `results/` or `artifacts/` between large runs if disk space becomes an issue.
